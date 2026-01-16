@@ -104,34 +104,53 @@ override NASMFILES := $(filter %.asm,$(SRCFILES))
 override OBJ := $(addprefix obj/,$(CFILES:.c=.c.o) $(ASFILES:.S=.S.o) $(NASMFILES:.asm=.asm.o))
 override HEADER_DEPS := $(addprefix obj/,$(CFILES:.c=.c.d) $(ASFILES:.S=.S.d))
 
+ISO := image.iso
+ISO_ROOT := iso_root
+LIMINE_DEPLOY ?= limine-deploy
+
+.PHONY: iso
+iso: $(ISO)
+
+$(ISO): bin/$(OUTPUT) limine.conf
+	cp -v bin/$(OUTPUT) $(ISO_ROOT)/boot/$(OUTPUT)
+	cp -v limine.conf $(ISO_ROOT)/boot/limine/limine.conf
+	xorriso -as mkisofs \
+	  -b boot/limine/limine-bios-cd.bin \
+	  -no-emul-boot -boot-load-size 4 -boot-info-table \
+	  --efi-boot boot/limine/limine-uefi-cd.bin \
+	  -efi-boot-part --efi-boot-image --protective-msdos-label \
+	  $(ISO_ROOT) -o $(ISO)
+	$(LIMINE_DEPLOY) $(ISO) || true
+
+
 # Default target. This must come first, before header dependencies.
-.PHONY: all
-all: bin/$(OUTPUT)
+#.PHONY: all
+#all: bin/$(OUTPUT)
 
 # Include header dependencies.
--include $(HEADER_DEPS)
+#-include $(HEADER_DEPS)
 
 # Link rules for the final executable.
-bin/$(OUTPUT): GNUmakefile linker.lds $(OBJ)
-	mkdir -p "$(dir $@)"
-	$(LD) $(LDFLAGS) $(OBJ) -o $@
+#bin/$(OUTPUT): GNUmakefile linker.lds $(OBJ)
+#	mkdir -p "$(dir $@)"
+#	$(LD) $(LDFLAGS) $(OBJ) -o $@
 
 # Compilation rules for *.c files.
-obj/%.c.o: %.c GNUmakefile
-	mkdir -p "$(dir $@)"
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+#obj/%.c.o: %.c GNUmakefile
+#	mkdir -p "$(dir $@)"
+#	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 # Compilation rules for *.S files.
-obj/%.S.o: %.S GNUmakefile
-	mkdir -p "$(dir $@)"
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+#obj/%.S.o: %.S GNUmakefile
+#	mkdir -p "$(dir $@)"
+#	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 # Compilation rules for *.asm (nasm) files.
-obj/%.asm.o: %.asm GNUmakefile
-	mkdir -p "$(dir $@)"
-	nasm $(NASMFLAGS) $< -o $@
+#obj/%.asm.o: %.asm GNUmakefile
+#	mkdir -p "$(dir $@)"
+#	nasm $(NASMFLAGS) $< -o $@
 
 # Remove object files and the final executable.
-.PHONY: clean
-clean:
-	rm -rf bin obj
+#.PHONY: clean
+#clean:
+#	rm -rf bin obj

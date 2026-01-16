@@ -1,0 +1,6 @@
+bin/
+obj/
+image.iso
+*.o
+*.d
+*.elf

@@ -128,7 +128,7 @@ void kmain(void) {
     struct flanterm_context *ft = flanterm_fb_init(
         NULL, NULL,
         (uint32_t *)framebuffer->address,
-	framebuffer->width, framebuffer->height, (framebuffer->pitch / 4),
+	framebuffer->width, framebuffer->height, (framebuffer->pitch),
 	framebuffer->red_mask_size, framebuffer->red_mask_shift,
 	framebuffer->green_mask_size, framebuffer->green_mask_shift,
 	framebuffer->blue_mask_size, framebuffer->blue_mask_shift,
